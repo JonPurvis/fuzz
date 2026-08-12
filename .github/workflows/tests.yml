@@ -29,7 +29,8 @@ jobs:
         with:
           php-version: ${{ matrix.php }}
           # pcntl is Unix-only (used by php-fuzzer timeouts); omit on Windows.
-          extensions: dom, curl, libxml, mbstring, zip, fileinfo${{ matrix.os == 'windows-latest' && '' || ', pcntl' }}
+          # Do not use `&& '' || …` — empty string is falsy and still selects pcntl.
+          extensions: ${{ matrix.os == 'windows-latest' && 'dom, curl, libxml, mbstring, zip, fileinfo' || 'dom, curl, libxml, mbstring, zip, fileinfo, pcntl' }}
           coverage: none
 
       - name: Setup problem matchers
