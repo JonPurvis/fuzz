@@ -155,7 +155,7 @@ final class ProcessRunner
         }
 
         // Prefer the current binary when it is already a supported 8.4.x runtime.
-        if (PHP_VERSION_ID >= 80400 && PHP_VERSION_ID < 80500) {
+        if (PHP_VERSION_ID < 80500) {
             return PHP_BINARY;
         }
 
