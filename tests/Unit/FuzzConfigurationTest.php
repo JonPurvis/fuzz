@@ -11,7 +11,7 @@ it('uses sensible defaults', function (): void {
     expect($config->runs)->toBe(FuzzConfiguration::DEFAULT_RUNS)
         ->and($config->maxLen)->toBe(FuzzConfiguration::DEFAULT_MAX_LEN)
         ->and($config->timeout)->toBe(FuzzConfiguration::DEFAULT_TIMEOUT)
-        ->and($config->catchCrashes)->toBeTrue()
+        ->and($config->saveCrashes)->toBeTrue()
         ->and($config->allowedExceptions)->toBe([Exception::class]);
 });
 

@@ -18,7 +18,7 @@ it('fluent chain mutates configuration without running the worker', function ():
         ->seed(['hello'])
         ->libraryDir('/tmp/fuzz-lib')
         ->crashDir('/tmp/fuzz-crash')
-        ->catchCrashes(false)
+        ->saveCrashes(false)
         ->allow([InvalidPayloadException::class]);
 
     expect($call)->toBeInstanceOf(FuzzCall::class);
@@ -32,7 +32,7 @@ it('fluent chain mutates configuration without running the worker', function ():
         ->and($config->seeds)->toBe(['hello'])
         ->and($config->libraryDir)->toBe('/tmp/fuzz-lib')
         ->and($config->crashDir)->toBe('/tmp/fuzz-crash')
-        ->and($config->catchCrashes)->toBeFalse()
+        ->and($config->saveCrashes)->toBeFalse()
         ->and($config->allowedExceptions)->toBe([InvalidPayloadException::class]);
 });
 
@@ -56,5 +56,5 @@ it('starts from default configuration when none is provided', function (): void 
     expect($config->runs)->toBe(FuzzConfiguration::DEFAULT_RUNS)
         ->and($config->maxLen)->toBe(FuzzConfiguration::DEFAULT_MAX_LEN)
         ->and($config->timeout)->toBe(FuzzConfiguration::DEFAULT_TIMEOUT)
-        ->and($config->catchCrashes)->toBeTrue();
+        ->and($config->saveCrashes)->toBeTrue();
 });

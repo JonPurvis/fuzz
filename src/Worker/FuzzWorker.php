@@ -118,11 +118,11 @@ final class FuzzWorker
                 }
             }
 
-            if ($crashPath === null && $configuration->catchCrashes && is_string($payload) && $payload !== '') {
+            if ($crashPath === null && $configuration->saveCrashes && is_string($payload) && $payload !== '') {
                 $crashPath = $this->library->writeCrash($crashDir, $payload);
             }
 
-            if (! $configuration->catchCrashes && $crashPath !== null) {
+            if (! $configuration->saveCrashes && $crashPath !== null) {
                 @unlink($crashPath);
                 $crashPath = null;
             }

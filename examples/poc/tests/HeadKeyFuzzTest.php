@@ -23,7 +23,7 @@ it('fuzz finds hostile JSON that datasets missed', function (): void {
             ->maxLen(64)
             ->libraryDir(__DIR__.'/../.pest/fuzz-library/headkey')
             ->crashDir(__DIR__.'/../.pest/fuzz-crashes/headkey')
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

@@ -28,7 +28,7 @@ final class FuzzConfiguration
         public array $seeds = [],
         public ?string $libraryDir = null,
         public ?string $crashDir = null,
-        public bool $catchCrashes = true,
+        public bool $saveCrashes = true,
         public array $allowedExceptions = [\Exception::class],
         public string $description = 'fuzz',
     ) {}
@@ -95,10 +95,10 @@ final class FuzzConfiguration
         return $clone;
     }
 
-    public function withCatchCrashes(bool $catchCrashes): self
+    public function withSaveCrashes(bool $saveCrashes): self
     {
         $clone = clone $this;
-        $clone->catchCrashes = $catchCrashes;
+        $clone->saveCrashes = $saveCrashes;
 
         return $clone;
     }
@@ -162,7 +162,7 @@ final class FuzzConfiguration
             'seeds' => $this->seeds,
             'libraryDir' => $this->libraryDir,
             'crashDir' => $this->crashDir,
-            'catchCrashes' => $this->catchCrashes,
+            'saveCrashes' => $this->saveCrashes,
             'allowedExceptions' => $this->allowedExceptions,
             'description' => $this->description,
         ];
@@ -204,7 +204,7 @@ final class FuzzConfiguration
             seeds: $seeds,
             libraryDir: isset($data['libraryDir']) && is_string($data['libraryDir']) ? $data['libraryDir'] : null,
             crashDir: isset($data['crashDir']) && is_string($data['crashDir']) ? $data['crashDir'] : null,
-            catchCrashes: is_bool($data['catchCrashes'] ?? null) ? $data['catchCrashes'] : true,
+            saveCrashes: is_bool($data['saveCrashes'] ?? null) ? $data['saveCrashes'] : true,
             allowedExceptions: $allowed,
             description: isset($data['description']) && is_string($data['description']) ? $data['description'] : 'fuzz',
         );

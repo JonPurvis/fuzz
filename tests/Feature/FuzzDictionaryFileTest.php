@@ -19,7 +19,7 @@ it('accepts dictionary entries from a .dict file path', function (): void {
             ->withDictionary([$dict])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

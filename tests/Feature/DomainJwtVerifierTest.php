@@ -40,7 +40,7 @@ it('fuzz finds hostile JWT inputs while allowing empty-token domain exceptions',
             ->allow([InvalidTokenException::class])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

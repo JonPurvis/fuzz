@@ -32,7 +32,7 @@ it('fuzz finds hostile pricing inputs around seeds', function (): void {
             ->withDictionary([',', '0', '1', '00', '.'])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

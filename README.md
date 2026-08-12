@@ -70,7 +70,7 @@ it('webhook parser never fatals on hostile JSON', function (): void {
         ->withDictionary(['{', '}', '[', ']', 'null', 'event', ':', ','])
         ->runs(2000)
         ->maxLen(64)
-        ->catchCrashes()
+        ->saveCrashes()
         ->run();
 });
 ```
@@ -80,7 +80,7 @@ Unlike a dataset, this does **not** check a fixed list of JSON strings. It **sea
 1. Starts from `seed(...)` — your known-good examples become the initial library.
 2. Mutates those bytes repeatedly (flip/delete/insert, splice in dictionary tokens).
 3. Keeps inputs that hit **new code paths** (coverage-guided), then mutates those further.
-4. Fails the Pest test if the target throws an uncaught `Error` / `TypeError` / times out — optionally saving the exact payload via `catchCrashes()`.
+4. Fails the Pest test if the target throws an uncaught `Error` / `TypeError` / times out — and, with `saveCrashes()` (default), writes the payload to `.pest/fuzz-crashes/{hash}/crash-*.txt`.
 
 So a dataset answers “do these cases I thought of behave?” This fuzz test answers “can we find a case I did not list that still breaks `eventName`?”
 
@@ -102,7 +102,7 @@ What the chain is doing:
 - **`withDictionary([...])`** — fragments the mutator is allowed to insert (here: JSON punctuation and `null` / `event`). That biases mutations toward structurally relevant junk instead of pure noise. You can also pass a path to a `.dict` file.
 - **`runs(2000)`** — budget: at most 2000 target executions this test. Higher = more searching, slower CI. Keep this small in the default suite; raise it for overnight/soak runs.
 - **`maxLen(64)`** — hard cap on input size in bytes. Stops the fuzzer from growing huge payloads when a small crash is enough.
-- **`catchCrashes()`** — when a crash is found, persist the payload under `.pest/fuzz-crashes/` so you can replay it or promote it into a dataset.
+- **`saveCrashes()`** — when a crash is found, persist the payload as `.pest/fuzz-crashes/{hash}/crash-*.txt` (override with `crashDir()`). Saving does not suppress the failure — Pest still fails so you can replay the input or promote it into a dataset.
 
 Use **both**: datasets lock in known good/bad cases; fuzz hunts for the ones you forgot. When fuzz finds a crash, paste that payload into a named dataset so it never slips back in.
 
@@ -119,12 +119,12 @@ it('headKey never fatals on hostile JSON', function () {
         ->withDictionary(['{', '}', 'null', 'key', ':', ','])
         ->runs(2000)
         ->maxLen(64)
-        ->catchCrashes()
+        ->saveCrashes()
         ->run();
 });
 ```
 
-On crash, Pest fails the test and can save the exact payload under `.pest/fuzz-crashes/`.
+On crash, Pest fails the test. With `saveCrashes()` (default `true`), the exact payload is written to `.pest/fuzz-crashes/{hash}/crash-*.txt` (or your `crashDir()`), and the failure message may include `Crash saved: …`.
 
 ## Fluent API
 
@@ -136,8 +136,8 @@ On crash, Pest fails the test and can save the exact payload under `.pest/fuzz-c
 | `withDictionary(array)` | `.dict` paths and/or keyword strings |
 | `seed(array)` | Starting example inputs (strings or files) |
 | `libraryDir(string)` | Where interesting inputs are kept (default `.pest/fuzz-library/{hash}`) |
-| `crashDir(string)` | Where crashes are saved |
-| `catchCrashes(bool)` | Persist crash payloads (default true) |
+| `crashDir(string)` | Where crashes are saved (default `.pest/fuzz-crashes/{hash}`) |
+| `saveCrashes(bool)` | Persist crashing inputs to `crashDir` as `crash-*.txt` (default `true`; does not suppress the failure) |
 | `allow(array)` | Domain exception classes to ignore |
 | `run()` | Execute in an isolated worker |
 
