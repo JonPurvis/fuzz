@@ -154,11 +154,21 @@ final class ProcessRunner
             return $this->phpBinary;
         }
 
+        // Prefer the current binary when it is already a supported 8.4.x runtime.
+        if (PHP_VERSION_ID >= 80400 && PHP_VERSION_ID < 80500) {
+            return PHP_BINARY;
+        }
+
         // Prefer a non-8.5 binary when available: php-fuzzer converts deprecations to Error.
+        // These Homebrew paths are Unix-only; probing them via shell_exec on Windows also
+        // breaks because cmd.exe mangles PHP -r scripts that contain string concatenation.
+        if (PHP_OS_FAMILY === 'Windows') {
+            return PHP_BINARY;
+        }
+
         $candidates = [
             '/opt/homebrew/Cellar/php-zts/8.4.12/bin/php',
             '/opt/homebrew/opt/php@8.4/bin/php',
-            PHP_BINARY,
         ];
 
         foreach ($candidates as $candidate) {

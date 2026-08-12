@@ -35,9 +35,10 @@ it('round trips through array', function (): void {
 it('resolves default library and crash dirs from description hash', function (): void {
     $config = (new FuzzConfiguration)->withDescription('webhook parser');
     $base = '/tmp/project';
+    $sep = DIRECTORY_SEPARATOR;
 
-    expect($config->resolvedLibraryDir($base))->toContain('.pest/fuzz-library/')
-        ->and($config->resolvedCrashDir($base))->toContain('.pest/fuzz-crashes/');
+    expect($config->resolvedLibraryDir($base))->toContain(".pest{$sep}fuzz-library{$sep}")
+        ->and($config->resolvedCrashDir($base))->toContain(".pest{$sep}fuzz-crashes{$sep}");
 });
 
 it('materializes inline dictionary keywords', function (): void {
