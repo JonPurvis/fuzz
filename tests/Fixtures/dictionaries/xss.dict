@@ -1,0 +1,7 @@
+# XSS / HTML fragments
+"<script>"
+"</script>"
+"<"
+">"
+"alert"
+"onload"

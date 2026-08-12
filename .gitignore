@@ -1,0 +1,16 @@
+.idea/*
+composer.lock
+/vendor/
+coverage.xml
+.phpunit.result.cache
+/.php-cs-fixer.php
+.php-cs-fixer.cache
+.temp/
+*.swp
+*.swo
+/.phpunit.cache
+/.pest/
+.phpstan.cache
+/examples/poc/vendor/
+/examples/poc/composer.lock
+/examples/poc/.pest/
