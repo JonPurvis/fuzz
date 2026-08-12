@@ -34,7 +34,7 @@ it('treats disallowed domain exceptions as crashes', function (): void {
             ->allow([])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

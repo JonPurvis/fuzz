@@ -46,7 +46,7 @@ it('respects a small maxLen while still finding crashes', function (): void {
             ->seed(['{}'])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

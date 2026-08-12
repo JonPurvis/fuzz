@@ -75,9 +75,9 @@ final class FuzzCall
         return $this;
     }
 
-    public function catchCrashes(bool $enabled = true): self
+    public function saveCrashes(bool $enabled = true): self
     {
-        $this->configuration = $this->configuration->withCatchCrashes($enabled);
+        $this->configuration = $this->configuration->withSaveCrashes($enabled);
 
         return $this;
     }

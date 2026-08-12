@@ -33,7 +33,7 @@ it('fuzz finds script leaks around sanitizer seeds', function (): void {
             ->withDictionary([$dict])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

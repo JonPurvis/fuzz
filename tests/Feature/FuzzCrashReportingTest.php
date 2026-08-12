@@ -18,7 +18,7 @@ it('includes a hex dump and crash path when catching crashes', function (): void
             ->seed(['{}'])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
 
         $this->fail('Expected FuzzCrashException');
@@ -32,7 +32,7 @@ it('includes a hex dump and crash path when catching crashes', function (): void
     }
 });
 
-it('still crashes but does not persist a crash file when catchCrashes is false', function (): void {
+it('still crashes but does not persist a crash file when saveCrashes is false', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-nocatch');
 
     try {
@@ -42,7 +42,7 @@ it('still crashes but does not persist a crash file when catchCrashes is false',
             ->seed(['{}'])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes(false)
+            ->saveCrashes(false)
             ->run();
 
         $this->fail('Expected FuzzCrashException');

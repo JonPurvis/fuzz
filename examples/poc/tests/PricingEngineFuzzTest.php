@@ -29,7 +29,7 @@ it('fuzz finds hostile pricing inputs that datasets missed', function (): void {
             ->maxLen(32)
             ->libraryDir(__DIR__.'/../.pest/fuzz-library/pricing')
             ->crashDir(__DIR__.'/../.pest/fuzz-crashes/pricing')
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });

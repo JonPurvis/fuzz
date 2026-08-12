@@ -34,7 +34,7 @@ it('fuzz finds hostile webhook JSON around seeds', function (): void {
             ->withDictionary([$dict])
             ->libraryDir($library)
             ->crashDir($crashes)
-            ->catchCrashes()
+            ->saveCrashes()
             ->run();
     })->toThrow(FuzzCrashException::class);
 });
