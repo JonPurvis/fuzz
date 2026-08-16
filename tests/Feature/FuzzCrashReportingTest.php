@@ -53,3 +53,27 @@ it('still crashes but does not persist a crash file when saveCrashes is false', 
         expect($files)->toBeEmpty();
     }
 });
+
+it('persists crash-*.txt for mutation crashes found from safe seeds', function (): void {
+    [$library, $crashes] = fuzzScratchDirs('fuzz-mutation-crash');
+
+    try {
+        // Safe seeds only — the crash must come from mutation, not a CORPUS CRASH seed.
+        fuzz(Closure::fromCallable([CrashOnEmpty::class, 'headKey']))
+            ->runs(400)
+            ->maxLen(64)
+            ->seed(['{"key":"ok"}'])
+            ->withDictionary(['{', '}', 'null', 'key', ':', ',', '"'])
+            ->libraryDir($library)
+            ->crashDir($crashes)
+            ->saveCrashes()
+            ->run();
+
+        $this->fail('Expected FuzzCrashException');
+    } catch (FuzzCrashException $exception) {
+        expect($exception->getMessage())->toContain('Crash saved:');
+
+        $files = glob($crashes.DIRECTORY_SEPARATOR.'crash-*.txt') ?: [];
+        expect($files)->not->toBeEmpty();
+    }
+});

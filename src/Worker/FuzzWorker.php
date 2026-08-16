@@ -63,15 +63,15 @@ final class FuzzWorker
                 }
             }
         }
-        $userTarget = $this->serializer->read($targetPath);
-        $wrapped = $this->wrapTarget($userTarget);
 
+        // Instrument before deserializing the target so Closure::fromCallable /
+        // class autoloads are intercepted. Loading the target first yields
+        // features:0 and php-fuzzer prints DUPLICATE CRASH without writing crash-*.txt.
         $fuzzer = new Fuzzer;
         $ref = new ReflectionClass(Fuzzer::class);
 
         /** @var Config $config */
         $config = $this->property($ref, $fuzzer, 'config');
-        $config->setTarget($wrapped);
         $config->setMaxLen($configuration->maxLen);
         $config->setAllowedExceptions($configuration->allowedExceptions);
 
@@ -88,6 +88,9 @@ final class FuzzWorker
         $this->invoke($ref, $fuzzer, 'setupTimeoutHandler');
         $this->invoke($ref, $fuzzer, 'setupErrorHandler');
         $this->invoke($ref, $fuzzer, 'setupShutdownHandler');
+
+        $userTarget = $this->serializer->read($targetPath);
+        $config->setTarget($this->wrapTarget($userTarget));
 
         $fuzzer->setCorpusDir($libraryDir);
 
@@ -118,7 +121,15 @@ final class FuzzWorker
                 }
             }
 
-            if ($crashPath === null && $configuration->saveCrashes && is_string($payload) && $payload !== '') {
+            // DUPLICATE CRASH (and similar) leave no file; recover bytes from the fuzzer.
+            if ($payload === null || $payload === '') {
+                $lastInput = $this->property($ref, $fuzzer, 'lastInput');
+                if (is_string($lastInput)) {
+                    $payload = $lastInput;
+                }
+            }
+
+            if ($crashPath === null && $configuration->saveCrashes && is_string($payload)) {
                 $crashPath = $this->library->writeCrash($crashDir, $payload);
             }
 
