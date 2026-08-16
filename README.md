@@ -2,7 +2,7 @@
 
 # Fuzz - Coverage-guided fuzzing for Pest
 
-A PestPHP plugin that wraps [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer) so you can write coverage-guided fuzz tests in the Pest style you already know and love: drop a `fuzz(...)->run()` call inside a normal `test()`, and it sits alongside the rest of your suite. Under the hood, the fuzzer is steered by which lines of your code each input actually runs.
+A PestPHP plugin that wraps [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer) so you can write coverage-guided fuzz tests in the Pest style you already know and love: drop a `fuzz(...)->run()` call inside a normal `test()`, and it sits alongside the rest of your suite. Under the hood, the fuzzer is steered by which lines of your code each input actually runs. Meaning: if a mutated input only revisits the same happy-path lines the seed already hit, it gets discarded; if it suddenly takes a different `if` / null / error path, that input is kept and mutated further. That is what “coverage-guided” is.
 
 [![Tests](https://github.com/JonPurvis/fuzz/actions/workflows/tests.yml/badge.svg)](https://github.com/JonPurvis/fuzz/actions/workflows/tests.yml)
 ![GitHub last commit](https://img.shields.io/github/last-commit/jonpurvis/fuzz)
