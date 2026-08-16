@@ -1,23 +1,31 @@
-# Fuzz
+<img src="art/banner.png">
 
-Coverage-guided fuzz testing for [PestPHP](https://pestphp.com), powered by [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer).
+# Fuzz - Coverage-guided fuzzing for Pest
 
-Fuzzing searches for inputs that crash your code (or break invariants). It complements Pest [datasets](https://pestphp.com/docs/datasets): datasets confirm cases you already know; fuzz hunts for the ones you forgot.
+A PestPHP plugin that wraps [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer) so you can hunt crashing inputs inside normal `it()` tests.
 
-## Requirements
+[![Tests](https://github.com/JonPurvis/fuzz/actions/workflows/tests.yml/badge.svg)](https://github.com/JonPurvis/fuzz/actions/workflows/tests.yml)
+![GitHub last commit](https://img.shields.io/github/last-commit/jonpurvis/fuzz)
+![Packagist PHP Version](https://img.shields.io/packagist/dependency-v/jonpurvis/fuzz/php)
+![GitHub issues](https://img.shields.io/github/issues/jonpurvis/fuzz)
+![GitHub](https://img.shields.io/github/license/jonpurvis/fuzz)
+![Packagist Downloads](https://img.shields.io/packagist/dt/jonpurvis/fuzz)
 
-- PHP 8.4+
-- Pest 5
+## Introduction
 
-## Installation
+Fuzz is a PestPHP plugin for coverage-guided fuzz testing. It searches for inputs that crash your code (or break invariants), with a focus on being easy to write and easy to read next to your normal Pest tests.
+
+Pest [datasets](https://pestphp.com/docs/datasets) are great for confirming cases you already thought of. Fuzz mutates seeds using coverage feedback and hunts for the ones you forgot — `TypeError`s, non-finite math, leaky sanitizers, hostile JSON shapes, and more.
+
+Requires PHP 8.4+ and Pest 5:
 
 ```bash
 composer require jonpurvis/fuzz --dev
 ```
 
-## In your application
+## Examples
 
-Say your app handles Stripe-style webhooks and trusts the decoded JSON a little too much:
+Let's say your app handles Stripe-style webhooks and trusts the decoded JSON a little too much:
 
 ```php
 namespace App\Webhooks;
@@ -56,7 +64,7 @@ it('rejects known bad webhook payloads', function (string $json): void {
 
 Datasets are great for **regressions** and examples you care about by name. They only ever send what you listed.
 
-Or you *could* use fuzz testing — because the input space is huge, attackers (and bugs) invent cases you did not list, and coverage feedback keeps mutating around your seeds until something crashes:
+Or you *could* use fuzz testing — because the input space is huge, and coverage feedback keeps mutating around your seeds until something crashes:
 
 ```php
 use function Fuzz\fuzz;
@@ -74,6 +82,8 @@ it('webhook parser never fatals on hostile JSON', function (): void {
         ->run();
 });
 ```
+
+Prefer **static** callables (or `Closure::fromCallable`) so the isolated worker does not need Pest's generated test class.
 
 Unlike a dataset, this does **not** check a fixed list of JSON strings. It **searches**:
 
@@ -106,28 +116,6 @@ What the chain is doing:
 
 Use **both**: datasets lock in known good/bad cases; fuzz hunts for the ones you forgot. When fuzz finds a crash, paste that payload into a named dataset so it never slips back in.
 
-## Basic usage
-
-Prefer **static** callables (or `Closure::fromCallable`) so the isolated worker does not need Pest's generated test class:
-
-```php
-use function Fuzz\fuzz;
-
-it('headKey never fatals on hostile JSON', function () {
-    fuzz(Closure::fromCallable([App\Support\HeadKey::class, 'parse']))
-        ->seed(['{"key":"a"}'])
-        ->withDictionary(['{', '}', 'null', 'key', ':', ','])
-        ->runs(2000)
-        ->maxLen(64)
-        ->saveCrashes()
-        ->run();
-});
-```
-
-On crash, Pest fails the test. With `saveCrashes()` (default `true`), the exact payload is written to `.pest/fuzz-crashes/{hash}/crash-*.txt` (or your `crashDir()`), and the failure message may include `Crash saved: …`.
-
-## Fluent API
-
 | Method | Meaning |
 |--|--|
 | `runs(int)` | Max target executions (default 1000) |
@@ -141,34 +129,18 @@ On crash, Pest fails the test. With `saveCrashes()` (default `true`), the exact 
 | `allow(array)` | Domain exception classes to ignore |
 | `run()` | Execute in an isolated worker |
 
-### Terminology
-
 - **Seed** — starting example you provide
 - **Library** — growing set of interesting inputs (kept because they found new code paths)
 - **Dictionary** — fragments the mutator may insert (`null`, `{`, `<script>`, …)
 - **Crash** — uncaught `Error` / timeout / failed Pest expectation inside the target
 
-## Development
+## Contributing
 
-```bash
-composer install
-composer test   # rector + pint + phpstan + pest
-```
+Contributions to the package are more than welcome — open an Issue or submit a Pull Request. Please run `composer test` before opening a PR (see [CONTRIBUTING.md](CONTRIBUTING.md)).
 
-### Local PoC consumer
+## Useful Links
 
-```bash
-cd examples/poc
-composer install
-./vendor/bin/pest
-```
-
-That path-requires this package (same idea as `composer require` in a Laravel app) and shows datasets staying green while fuzz finds the `HeadKey` crash.
-
-## Architecture note
-
-`nikic/php-fuzzer` instruments PHP via include interception and overrides error/signal handlers. This plugin always runs the fuzzer in a **subprocess** (`bin/fuzz-worker.php`) so the parent Pest process stays clean.
-
-## License
-
-MIT
+- [PestPHP](https://pestphp.com/)
+- [Pest datasets](https://pestphp.com/docs/datasets)
+- [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer)
+- [Packagist — jonpurvis/fuzz](https://packagist.org/packages/jonpurvis/fuzz)

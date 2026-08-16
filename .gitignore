@@ -11,6 +11,3 @@ coverage.xml
 /.phpunit.cache
 /.pest/
 .phpstan.cache
-/examples/poc/vendor/
-/examples/poc/composer.lock
-/examples/poc/.pest/
