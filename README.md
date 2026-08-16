@@ -2,7 +2,7 @@
 
 # Fuzz - Coverage-guided fuzzing for Pest
 
-A PestPHP plugin that wraps [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer) so you can hunt crashing inputs inside normal `it()` tests.
+A PestPHP plugin that wraps [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzzer) so you can write coverage-guided fuzz tests in the Pest style you already know and love: drop a `fuzz(...)->run()` call inside a normal `test()`, and it sits alongside the rest of your suite. Under the hood, the fuzzer is steered by which lines of your code each input actually runs.
 
 [![Tests](https://github.com/JonPurvis/fuzz/actions/workflows/tests.yml/badge.svg)](https://github.com/JonPurvis/fuzz/actions/workflows/tests.yml)
 ![GitHub last commit](https://img.shields.io/github/last-commit/jonpurvis/fuzz)
@@ -13,9 +13,9 @@ A PestPHP plugin that wraps [nikic/php-fuzzer](https://github.com/nikic/PHP-Fuzz
 
 ## Introduction
 
-Fuzz is a PestPHP plugin for coverage-guided fuzz testing. It searches for inputs that crash your code (or break invariants), with a focus on being easy to write and easy to read next to your normal Pest tests.
+Fuzz is a PestPHP plugin for coverage-guided fuzz testing. It searches for inputs that crash your code (or break invariants), using the familiar Pest syntax so fuzz cases read like any other test in your suite.
 
-Pest [datasets](https://pestphp.com/docs/datasets) are great for confirming cases you already thought of. Fuzz mutates seeds using coverage feedback and hunts for the ones you forgot — `TypeError`s, non-finite math, leaky sanitizers, hostile JSON shapes, and more.
+Pest [datasets](https://pestphp.com/docs/datasets) are great for confirming cases you already thought of. Fuzz mutates seeds, keeps the ones that run new lines of your code, and hunts for the cases you forgot — `TypeError`s, non-finite math, leaky sanitizers, hostile JSON shapes, and more.
 
 Requires PHP 8.4+ and Pest 5:
 
@@ -64,12 +64,12 @@ it('rejects known bad webhook payloads', function (string $json): void {
 
 Datasets are great for **regressions** and examples you care about by name. They only ever send what you listed.
 
-Or you *could* use fuzz testing — because the input space is huge, and coverage feedback keeps mutating around your seeds until something crashes:
+Or you *could* use fuzz testing — because the input space is huge, and the fuzzer keeps mutating around your seeds (preferring inputs that hit new lines) until something crashes:
 
 ```php
 use function Fuzz\fuzz;
 
-it('webhook parser never fatals on hostile JSON', function (): void {
+test('webhook parser never fatals on hostile JSON', function (): void {
     fuzz(Closure::fromCallable([PayloadParser::class, 'eventName']))
         ->seed([
             '{"event":"checkout.session.completed"}',
@@ -89,8 +89,11 @@ Unlike a dataset, this does **not** check a fixed list of JSON strings. It **sea
 
 1. Starts from `seed(...)` — your known-good examples become the initial library.
 2. Mutates those bytes repeatedly (flip/delete/insert, splice in dictionary tokens).
-3. Keeps inputs that hit **new code paths** (coverage-guided), then mutates those further.
-4. Fails the Pest test if the target throws an uncaught `Error` / `TypeError` / times out — and, with `saveCrashes()` (default), writes the payload to `.pest/fuzz-crashes/{hash}/crash-*.txt`.
+3. Watches which lines of your PHP ran for that input (coverage).
+4. If the input hit something new, keeps it and mutates it further. If it only revisited the same lines as before, throws it away.
+5. Fails the Pest test if the target throws an uncaught `Error` / `TypeError` / times out — and, with `saveCrashes()` (default), writes the payload to `.pest/fuzz-crashes/{hash}/crash-*.txt`.
+
+That loop is what **coverage-guided** means. Imagine your seed only walks the happy path. A mutation that still only walks that path teaches the fuzzer nothing, so it moves on. A mutation that suddenly takes a different `if` / `switch` / error branch is interesting: the fuzzer keeps that input and breeds more variants from it. Over thousands of runs, that pushes the search toward the weird shapes that actually stress your code, instead of wasting the budget on noise that never leaves the happy path.
 
 So a dataset answers “do these cases I thought of behave?” This fuzz test answers “can we find a case I did not list that still breaks `eventName`?”
 
