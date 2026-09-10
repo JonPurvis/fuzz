@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Fuzz\FuzzCall;
 use Fuzz\ValueObjects\FuzzConfiguration;
+use PHPUnit\Framework\Assert;
 use Tests\Fixtures\InvalidPayloadException;
 use Tests\Fixtures\SafeEcho;
 
@@ -48,6 +49,22 @@ it('run description updates configuration before execution', function (): void {
 
     expect($call->configuration()->description)->toBe('named fuzz')
         ->and($call->configuration()->runs)->toBe(1);
+});
+
+it('registers PHPUnit assertions on a successful run', function (): void {
+    [$library, $crashes] = fuzzScratchDirs('fuzz-call-asserts');
+
+    $before = Assert::getCount();
+
+    fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+        ->runs(10)
+        ->maxLen(8)
+        ->seed(['ok'])
+        ->libraryDir($library)
+        ->crashDir($crashes)
+        ->run();
+
+    expect(Assert::getCount())->toBeGreaterThan($before);
 });
 
 it('starts from default configuration when none is provided', function (): void {
