@@ -8,6 +8,7 @@ use Closure;
 use Fuzz\Runners\ProcessRunner;
 use Fuzz\ValueObjects\FuzzConfiguration;
 use Fuzz\ValueObjects\FuzzResult;
+use PHPUnit\Framework\Assert;
 
 final class FuzzCall
 {
@@ -103,6 +104,18 @@ final class FuzzCall
             $this->configuration = $this->configuration->withDescription($description);
         }
 
-        return (new ProcessRunner)->run($this->target, $this->configuration);
+        $result = (new ProcessRunner)->run($this->target, $this->configuration);
+
+        Assert::assertTrue(
+            $result->ok(),
+            $result->message !== '' ? $result->message : 'Fuzz completed without crashes.',
+        );
+        Assert::assertGreaterThan(
+            0,
+            $result->runs,
+            'Fuzz did not execute any runs.',
+        );
+
+        return $result;
     }
 }
