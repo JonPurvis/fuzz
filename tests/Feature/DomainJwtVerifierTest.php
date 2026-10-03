@@ -9,11 +9,11 @@ use Tests\Fixtures\JwtVerifier;
 use function Fuzz\fuzz;
 
 it('datasets regress empty tokens as domain exceptions', function (): void {
-    expect(fn () => JwtVerifier::verify(''))->toThrow(InvalidTokenException::class);
+    expect(fn (): string => JwtVerifier::verify(''))->toThrow(InvalidTokenException::class);
 });
 
 it('datasets regress known crashing garbage tokens', function (string $token): void {
-    expect(fn () => JwtVerifier::verify($token))->toThrow(TypeError::class);
+    expect(fn (): string => JwtVerifier::verify($token))->toThrow(TypeError::class);
 })->with([
     'single segment' => ['not-a-jwt'],
     'two segments' => ['aaa.bbb'],
@@ -32,7 +32,7 @@ it('fuzz finds hostile JWT inputs while allowing empty-token domain exceptions',
     $header = base64_encode('{"alg":"none","typ":"JWT"}');
 
     expect(function () use ($library, $crashes, $header): void {
-        fuzz(Closure::fromCallable([JwtVerifier::class, 'verify']))
+        fuzz(JwtVerifier::verify(...))
             ->runs(150)
             ->maxLen(64)
             ->seed([$header.'.payload.sig', 'a.b.c'])

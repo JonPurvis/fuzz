@@ -9,11 +9,11 @@ namespace Fuzz\ValueObjects;
  */
 final class FuzzConfiguration
 {
-    public const DEFAULT_RUNS = 1000;
+    public const int DEFAULT_RUNS = 1000;
 
-    public const DEFAULT_MAX_LEN = 4096;
+    public const int DEFAULT_MAX_LEN = 4096;
 
-    public const DEFAULT_TIMEOUT = 3;
+    public const int DEFAULT_TIMEOUT = 3;
 
     /**
      * @param  list<string>  $dictionary

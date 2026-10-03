@@ -55,6 +55,7 @@ final class LibraryManager
                 if ($contents === false) {
                     throw new RuntimeException("Unable to read seed file [{$seed}].");
                 }
+
                 $paths[] = $this->writeSeed($libraryDir, $contents);
             } else {
                 $paths[] = $this->writeSeed($libraryDir, $seed, sprintf('seed-%d-%s.txt', $index, substr(hash('sha256', $seed), 0, 8)));
@@ -91,6 +92,7 @@ final class LibraryManager
             if (file_put_contents($path, implode(PHP_EOL, $lines).PHP_EOL) === false) {
                 throw new RuntimeException("Unable to write dictionary file [{$path}].");
             }
+
             $paths[] = $path;
         }
 

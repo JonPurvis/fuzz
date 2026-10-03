@@ -29,7 +29,7 @@ it('materializes inline and file seeds into the library', function (): void {
 
 it('materializes dictionary file paths alongside inline keywords', function (): void {
     $jobDir = sys_get_temp_dir().'/fuzz-dict-job-'.bin2hex(random_bytes(4));
-    $dictFile = dirname(__DIR__).'/Fixtures/dictionaries/json.dict';
+    $dictFile = __DIR__.'/../Fixtures/dictionaries/json.dict';
 
     $manager = new LibraryManager;
     $paths = $manager->materializeDictionaries($jobDir, [$dictFile, '{', 'null']);

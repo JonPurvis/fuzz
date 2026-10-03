@@ -8,7 +8,7 @@ use Tests\Fixtures\PricingEngine;
 use function Fuzz\fuzz;
 
 it('datasets regress known crashing pricing inputs', function (string $input): void {
-    expect(fn () => PricingEngine::quote($input))->toThrow(DivisionByZeroError::class);
+    expect(fn (): float => PricingEngine::quote($input))->toThrow(DivisionByZeroError::class);
 })->with([
     'denominator zero' => ['100,0'],
     'zero over zero' => ['0,0'],
@@ -25,7 +25,7 @@ it('fuzz finds hostile pricing inputs around seeds', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-pricing');
 
     expect(function () use ($library, $crashes): void {
-        fuzz(Closure::fromCallable([PricingEngine::class, 'quote']))
+        fuzz(PricingEngine::quote(...))
             ->runs(150)
             ->maxLen(32)
             ->seed(['100,2', '10,1', '3.5,0.5'])

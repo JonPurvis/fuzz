@@ -11,7 +11,7 @@ use Tests\Fixtures\SafeEcho;
 use function Fuzz\fuzz;
 
 it('fluent chain mutates configuration without running the worker', function (): void {
-    $call = fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+    $call = fuzz(SafeEcho::handle(...))
         ->runs(42)
         ->maxLen(128)
         ->timeout(7)
@@ -38,7 +38,7 @@ it('fluent chain mutates configuration without running the worker', function ():
 });
 
 it('run description updates configuration before execution', function (): void {
-    $call = fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+    $call = fuzz(SafeEcho::handle(...))
         ->runs(1)
         ->maxLen(8)
         ->seed(['x']);
@@ -56,7 +56,7 @@ it('registers PHPUnit assertions on a successful run', function (): void {
 
     $before = Assert::getCount();
 
-    fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+    fuzz(SafeEcho::handle(...))
         ->runs(10)
         ->maxLen(8)
         ->seed(['ok'])
@@ -68,7 +68,7 @@ it('registers PHPUnit assertions on a successful run', function (): void {
 });
 
 it('starts from default configuration when none is provided', function (): void {
-    $config = fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))->configuration();
+    $config = fuzz(SafeEcho::handle(...))->configuration();
 
     expect($config->runs)->toBe(FuzzConfiguration::DEFAULT_RUNS)
         ->and($config->maxLen)->toBe(FuzzConfiguration::DEFAULT_MAX_LEN)

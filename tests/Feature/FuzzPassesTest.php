@@ -9,7 +9,7 @@ use function Fuzz\fuzz;
 it('passes when the target never crashes', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-safe');
 
-    $result = fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+    $result = fuzz(SafeEcho::handle(...))
         ->runs(30)
         ->maxLen(32)
         ->seed(['hello', 'world'])

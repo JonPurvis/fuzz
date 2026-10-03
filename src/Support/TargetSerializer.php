@@ -71,7 +71,7 @@ final class TargetSerializer
 
         throw new FuzzException(
             'Fuzz targets must not be bound to $this. Use a static function (string $input): void { ... } '
-            .'or Closure::fromCallable([SomeClass::class, \'method\']).'
+            ."or Closure::fromCallable([SomeClass::class, 'method'])."
         );
     }
 }

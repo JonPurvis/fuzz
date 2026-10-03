@@ -23,10 +23,10 @@ it('datasets regress known script-leak payloads', function (string $html): void 
 
 it('fuzz finds script leaks around sanitizer seeds', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-sanitizer');
-    $dict = dirname(__DIR__).'/Fixtures/dictionaries/xss.dict';
+    $dict = __DIR__.'/../Fixtures/dictionaries/xss.dict';
 
     expect(function () use ($library, $crashes, $dict): void {
-        fuzz(Closure::fromCallable([LeakySanitizer::class, 'assertClean']))
+        fuzz(LeakySanitizer::assertClean(...))
             ->runs(80)
             ->maxLen(64)
             ->seed(['hello', '<b>hi</b>', '<script>alert(1)</script>'])

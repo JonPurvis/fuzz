@@ -17,11 +17,11 @@ use PHPUnit\Framework\ExpectationFailedException;
 use ReflectionClass;
 use ReflectionMethod;
 
-final class FuzzWorker
+final readonly class FuzzWorker
 {
     public function __construct(
-        private readonly TargetSerializer $serializer = new TargetSerializer,
-        private readonly LibraryManager $library = new LibraryManager,
+        private TargetSerializer $serializer = new TargetSerializer,
+        private LibraryManager $library = new LibraryManager,
     ) {}
 
     public function run(string $jobDir): int
@@ -46,6 +46,7 @@ final class FuzzWorker
         if (! isset($data['libraryDir']) || ! is_string($data['libraryDir'])) {
             throw new FuzzException('libraryDir missing.');
         }
+
         if (! isset($data['crashDir']) || ! is_string($data['crashDir'])) {
             throw new FuzzException('crashDir missing.');
         }
@@ -85,9 +86,9 @@ final class FuzzWorker
         $this->setProperty($ref, $fuzzer, 'outputDir', $crashDir);
 
         $fuzzer->startInstrumentation();
-        $this->invoke($ref, $fuzzer, 'setupTimeoutHandler');
-        $this->invoke($ref, $fuzzer, 'setupErrorHandler');
-        $this->invoke($ref, $fuzzer, 'setupShutdownHandler');
+        $this->invoke($fuzzer, 'setupTimeoutHandler');
+        $this->invoke($fuzzer, 'setupErrorHandler');
+        $this->invoke($fuzzer, 'setupShutdownHandler');
 
         $userTarget = $this->serializer->read($targetPath);
         $config->setTarget($this->wrapTarget($userTarget));
@@ -164,8 +165,8 @@ final class FuzzWorker
         return static function (string $input) use ($userTarget): void {
             try {
                 $userTarget($input);
-            } catch (ExpectationFailedException $exception) {
-                throw new \Error($exception->getMessage(), 0, $exception);
+            } catch (ExpectationFailedException $expectationFailedException) {
+                throw new \Error($expectationFailedException->getMessage(), 0, $expectationFailedException);
             }
         };
     }
@@ -199,6 +200,7 @@ final class FuzzWorker
 
                 continue;
             }
+
             if ($capture) {
                 $buffer[] = $line;
             }
@@ -215,10 +217,9 @@ final class FuzzWorker
     }
 
     /**
-     * @param  ReflectionClass<Fuzzer>  $ref
      * @param  list<mixed>  $args
      */
-    private function invoke(ReflectionClass $ref, Fuzzer $object, string $method, array $args = []): mixed
+    private function invoke(Fuzzer $object, string $method, array $args = []): mixed
     {
         $methodRef = new ReflectionMethod($object, $method);
 

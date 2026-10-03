@@ -4,17 +4,17 @@ declare(strict_types=1);
 
 namespace Fuzz\ValueObjects;
 
-final class FuzzResult
+final readonly class FuzzResult
 {
     public function __construct(
-        public readonly bool $crashed,
-        public readonly int $runs,
-        public readonly int $features,
-        public readonly int $librarySize,
-        public readonly ?string $payload = null,
-        public readonly ?string $exception = null,
-        public readonly ?string $crashPath = null,
-        public readonly string $message = '',
+        public bool $crashed,
+        public int $runs,
+        public int $features,
+        public int $librarySize,
+        public ?string $payload = null,
+        public ?string $exception = null,
+        public ?string $crashPath = null,
+        public string $message = '',
     ) {}
 
     public function crashed(): bool

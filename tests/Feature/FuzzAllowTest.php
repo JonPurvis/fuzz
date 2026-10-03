@@ -11,7 +11,7 @@ use function Fuzz\fuzz;
 it('allows configured domain exceptions without treating them as crashes', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-allow');
 
-    $result = fuzz(Closure::fromCallable([DomainExceptionThrower::class, 'handle']))
+    $result = fuzz(DomainExceptionThrower::handle(...))
         ->runs(40)
         ->maxLen(16)
         ->seed(['bad', 'ok'])
@@ -27,7 +27,7 @@ it('treats disallowed domain exceptions as crashes', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-disallow');
 
     expect(function () use ($library, $crashes): void {
-        fuzz(Closure::fromCallable([DomainExceptionThrower::class, 'handle']))
+        fuzz(DomainExceptionThrower::handle(...))
             ->runs(40)
             ->maxLen(16)
             ->seed(['bad'])
