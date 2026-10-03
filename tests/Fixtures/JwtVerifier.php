@@ -19,9 +19,7 @@ final class JwtVerifier
         $headerJson = base64_decode($parts[0], true);
         /** @var mixed $header */
         $header = json_decode($headerJson === false ? '' : $headerJson, true);
-        /** @var mixed $alg */
-        $alg = is_array($header) ? ($header['alg'] ?? null) : null;
 
-        return $alg;
+        return is_array($header) ? ($header['alg'] ?? null) : null;
     }
 }

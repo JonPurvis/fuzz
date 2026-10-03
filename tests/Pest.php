@@ -16,9 +16,7 @@ use Pest\Expectation;
 |--------------------------------------------------------------------------
 */
 
-expect()->extend('toBeOne', function (): Expectation {
-    return $this->toBe(1);
-});
+expect()->extend('toBeOne', fn (): Expectation => $this->toBe(1));
 
 /*
 |--------------------------------------------------------------------------

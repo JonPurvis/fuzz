@@ -13,9 +13,7 @@ final class WebhookPayloadParser
     {
         /** @var mixed $data */
         $data = json_decode($json, true);
-        /** @var mixed $event */
-        $event = is_array($data) ? ($data['event'] ?? null) : null;
 
-        return $event;
+        return is_array($data) ? ($data['event'] ?? null) : null;
     }
 }

@@ -1,51 +1,49 @@
 name: Tests
 
-on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+on: ['push', 'pull_request']
+
+permissions:
+  contents: read
 
 jobs:
-  test:
+  ci:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
-        os: [ubuntu-latest, windows-latest]
-        php: [8.4, 8.5]
-        stability: [prefer-stable]
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        php: [8.3, 8.4, 8.5]
+        dependency-version: [prefer-lowest, prefer-stable]
 
-    name: P${{ matrix.php }} - ${{ matrix.stability }} - ${{ matrix.os }}
+    name: Tests P${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
 
     steps:
-      - name: Checkout code
-        # actions/checkout@v6.1.0
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v6
 
       - name: Setup PHP
-        # shivammathur/setup-php@2.37.2
-        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240
+        uses: shivammathur/setup-php@f3e473d116dcccaddc5834248c87452386958240 # v2
         with:
           php-version: ${{ matrix.php }}
           # pcntl is Unix-only (used by php-fuzzer timeouts); omit on Windows.
-          # Do not use `&& '' || …` — empty string is falsy and still selects pcntl.
-          extensions: ${{ matrix.os == 'windows-latest' && 'dom, curl, libxml, mbstring, zip, fileinfo' || 'dom, curl, libxml, mbstring, zip, fileinfo, pcntl' }}
-          coverage: none
+          extensions: ${{ matrix.os == 'windows-latest' && 'dom, mbstring, zip' || 'dom, mbstring, zip, pcntl' }}
+          coverage: pcov
 
-      - name: Setup problem matchers
-        run: |
-          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+      - name: Get Composer cache directory
+        id: composer-cache
+        shell: bash
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
-      - name: Install dependencies
-        run: composer update --${{ matrix.stability }} --prefer-dist --no-interaction
+      - name: Cache dependencies
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v5
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: dependencies-php-${{ matrix.php }}-os-${{ matrix.os }}-version-${{ matrix.dependency-version }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: dependencies-php-${{ matrix.php }}-os-${{ matrix.os }}-version-${{ matrix.dependency-version }}-composer-
 
-      - name: Execute tests
-        run: vendor/bin/pest
+      - name: Install Composer dependencies
+        run: composer update --${{ matrix.dependency-version }} --no-interaction --prefer-dist
 
-      - name: Run Pint
-        run: vendor/bin/pint --test --dirty
-
-      - name: Run Analysis
-        run: vendor/bin/phpstan analyse
+      - name: Unit Tests
+        run: composer test:unit

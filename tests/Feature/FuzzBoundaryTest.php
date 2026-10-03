@@ -11,7 +11,7 @@ use function Fuzz\fuzz;
 it('runs with an empty library start and tiny maxLen', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-boundary-empty');
 
-    $result = fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+    $result = fuzz(SafeEcho::handle(...))
         ->runs(20)
         ->maxLen(1)
         ->libraryDir($library)
@@ -24,7 +24,7 @@ it('runs with an empty library start and tiny maxLen', function (): void {
 it('accepts a null-byte seed without crashing a safe target', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-boundary-nul');
 
-    $result = fuzz(Closure::fromCallable([SafeEcho::class, 'handle']))
+    $result = fuzz(SafeEcho::handle(...))
         ->runs(20)
         ->maxLen(8)
         ->seed(["\0", "a\0b"])
@@ -40,7 +40,7 @@ it('respects a small maxLen while still finding crashes', function (): void {
 
     // "{}" is 2 bytes; with seeds that already crash we only need tiny runs.
     expect(function () use ($library, $crashes): void {
-        fuzz(Closure::fromCallable([CrashOnEmpty::class, 'headKey']))
+        fuzz(CrashOnEmpty::headKey(...))
             ->runs(30)
             ->maxLen(8)
             ->seed(['{}'])

@@ -14,13 +14,13 @@ use Fuzz\ValueObjects\FuzzConfiguration;
 use Fuzz\ValueObjects\FuzzResult;
 use Symfony\Component\Process\Process;
 
-final class ProcessRunner
+final readonly class ProcessRunner
 {
     public function __construct(
-        private readonly TargetSerializer $serializer = new TargetSerializer,
-        private readonly LibraryManager $library = new LibraryManager,
-        private readonly HexDumper $hexDumper = new HexDumper,
-        private readonly ?string $phpBinary = null,
+        private TargetSerializer $serializer = new TargetSerializer,
+        private LibraryManager $library = new LibraryManager,
+        private HexDumper $hexDumper = new HexDumper,
+        private ?string $phpBinary = null,
     ) {}
 
     public function run(Closure $target, FuzzConfiguration $configuration): FuzzResult
@@ -154,7 +154,7 @@ final class ProcessRunner
             return $this->phpBinary;
         }
 
-        // Prefer the current binary when it is already a supported 8.4.x runtime.
+        // Prefer the current binary when it is already a supported 8.3.x or 8.4.x runtime.
         if (PHP_VERSION_ID < 80500) {
             return PHP_BINARY;
         }

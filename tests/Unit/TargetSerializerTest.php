@@ -7,9 +7,7 @@ use Tests\Fixtures\SafeEcho;
 
 it('serializes and restores a simple closure', function (): void {
     $serializer = new TargetSerializer;
-    $encoded = $serializer->serialize(static function (string $input): string {
-        return strtoupper($input);
-    });
+    $encoded = $serializer->serialize(static fn (string $input): string => strtoupper($input));
 
     $restored = $serializer->unserialize($encoded);
 
@@ -20,7 +18,8 @@ it('writes and reads a fromCallable target via a temp file', function (): void {
     $path = sys_get_temp_dir().'/fuzz-target-'.bin2hex(random_bytes(4)).'.ser';
     $serializer = new TargetSerializer;
 
-    $serializer->write($path, Closure::fromCallable([SafeEcho::class, 'handle']));
+    $serializer->write($path, SafeEcho::handle(...));
+
     $restored = $serializer->read($path);
 
     expect($restored)->toBeInstanceOf(Closure::class);
@@ -31,9 +30,7 @@ it('writes and reads a fromCallable target via a temp file', function (): void {
 
 it('strips bound this so Pest closures can round-trip', function (): void {
     $serializer = new TargetSerializer;
-    $bound = function (string $input): string {
-        return strrev($input);
-    };
+    $bound = (fn (string $input): string => strrev($input));
 
     $restored = $serializer->unserialize($serializer->serialize($bound));
 

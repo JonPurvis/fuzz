@@ -1,17 +1,62 @@
-# Contributing
+# CONTRIBUTING
 
-Thank you for considering contributing to `jonpurvis/fuzz`.
+Contributions are welcome, and are accepted via pull requests.
+Please review these guidelines before submitting any pull requests.
 
-## Setup
+## Process
 
-```bash
-composer install
-composer test
-```
+1. Fork the project
+1. Create a new branch
+1. Code, test, commit and push
+1. Open a pull request detailing your changes. Make sure to follow the [template](.github/PULL_REQUEST_TEMPLATE.md)
 
 ## Guidelines
 
-- PHP 8.4+, Pest 5
-- Keep the fuzzer worker isolated from the Pest parent process
-- Prefer small, focused pull requests
-- Run `composer test` before opening a PR (Pint, PHPStan, Pest)
+- PHP 8.3+, Pest 4 or 5.
+- Keep the fuzzer worker isolated from the Pest parent process.
+- Please ensure the coding style running `composer lint`.
+- Send a coherent commit history, making sure each individual commit in your pull request is meaningful.
+- You may need to [rebase](https://git-scm.com/book/en/v2/Git-Branching-Rebasing) to avoid merge conflicts.
+- Please remember that we follow [SemVer](http://semver.org/).
+
+## Setup
+
+Clone your fork, then install the dev dependencies:
+
+```bash
+composer install
+```
+
+## Lint
+
+Lint your code:
+
+```bash
+composer lint
+```
+
+## Tests
+
+Run all tests:
+
+```bash
+composer test
+```
+
+Check types:
+
+```bash
+composer test:types
+```
+
+Type coverage:
+
+```bash
+composer test:type-coverage
+```
+
+Unit tests:
+
+```bash
+composer test:unit
+```
