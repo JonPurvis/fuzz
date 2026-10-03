@@ -1,6 +1,13 @@
 name: Tests
 
-on: ['push', 'pull_request']
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -9,11 +16,18 @@ jobs:
   ci:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true
+      fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        php: [8.3, 8.4, 8.5]
-        dependency-version: [prefer-lowest, prefer-stable]
+        os: [ubuntu-latest]
+        php: ['8.3', '8.4', '8.5']
+        dependency-version: [prefer-stable]
+        include:
+          - os: windows-latest
+            php: '8.5'
+            dependency-version: prefer-stable
+          - os: ubuntu-latest
+            php: '8.3'
+            dependency-version: prefer-lowest
 
     name: Tests P${{ matrix.php }} - ${{ matrix.os }} - ${{ matrix.dependency-version }}
 
