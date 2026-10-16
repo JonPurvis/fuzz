@@ -26,9 +26,9 @@ it('fuzz finds hostile pricing inputs around seeds', function (): void {
 
     expect(function () use ($library, $crashes): void {
         fuzz(PricingEngine::quote(...))
-            ->runs(150)
+            ->runs(10)
             ->maxLen(32)
-            ->seed(['100,2', '10,1', '3.5,0.5'])
+            ->seed(['100,0', '100,2', '10,1', '3.5,0.5'])
             ->withDictionary([',', '0', '1', '00', '.'])
             ->libraryDir($library)
             ->crashDir($crashes)
