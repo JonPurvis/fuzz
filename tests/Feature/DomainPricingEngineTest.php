@@ -25,7 +25,6 @@ it('fuzz finds hostile pricing inputs around seeds', function (): void {
     [$library, $crashes] = fuzzScratchDirs('fuzz-pricing');
 
     expect(function () use ($library, $crashes): void {
-        // Seed the known crashing payload so CORPUS CRASH is deterministic and persisted.
         fuzz(PricingEngine::quote(...))
             ->runs(10)
             ->maxLen(32)
